@@ -11,22 +11,25 @@ Music Library Agent demonstrates modern agentic AI patterns in Rust, combining a
 
 ## Features
 
-### ✅ Implemented (MVP - v0.1.0)
+### ✅ Implemented (v0.2.0)
 
 - **🎵 MP3 Metadata Analysis** - Read and parse ID3 tags from MP3 files
 - **🤖 Local LLM Integration** - Ollama support for free, private analysis
 - **📊 Intelligent Reporting** - AI-powered assessment of metadata quality
 - **🔍 Missing Data Detection** - Automatically identify incomplete or suspicious tags
 - **💡 Smart Suggestions** - Get actionable recommendations for metadata improvements
+- **📝 Safe Metadata Writing** - Apply corrections to NEW files (never overwrites originals)
+- **📋 JSON-based Review System** - Review AI suggestions before applying
+- **🗂️ Organized Directory Structure** - Separate folders for originals, suggestions, and updated files
 - **⚡ Async Architecture** - Built on Tokio for efficient concurrent operations
 - **🎯 Extensible Design** - Trait-based LLM abstraction for easy provider switching
 - **🛡️ Robust Error Handling** - Clear, contextual error messages
 
 ### 🚧 In Development
 
-- **📝 Metadata Writing** - Apply corrections back to MP3 files (Phase 2)
 - **🌐 Cloud LLM Support** - Claude and OpenAI integration (Phase 2)
 - **📁 Batch Processing** - Analyze entire directories in parallel (Phase 3)
+- **🖥️ GUI Interface** - User-friendly graphical interface
 
 ### 🔮 Planned Features
 
@@ -64,40 +67,57 @@ cd music-agent
 cargo build --release
 ```
 
-### Usage
+## Usage
 
-Analyze a single MP3 file:
+The Music Library Agent operates in three modes, using an organized directory structure for safety and clarity.
+
+### Directory Structure
+
+```
+public/
+├── originals/          # Original MP3 files (never modified)
+│   ├── 01 American Pie.mp3
+│   ├── 02 Friend of the Devil.mp3
+│   └── ...
+│
+├── suggestions/        # AI-generated suggestions in JSON format
+│   ├── 01 American Pie.suggestions.json
+│   ├── 02 Friend of the Devil.suggestions.json
+│   └── ...
+│
+└── updated/           # Modified MP3s with applied suggestions
+    ├── 02 Friend of the Devil.mp3
+    └── ...
+```
+
+**Safety Features:**
+- ✅ Original files in `originals/` are **never modified**
+- ✅ Suggestions saved to JSON for **human review**
+- ✅ Updated files created in separate `updated/` directory
+- ✅ No overwrites - unique filenames if duplicates exist
+
+---
+
+### Mode 1: Analysis Mode
+
+Get AI-powered analysis of your MP3 metadata without making any changes.
 
 ```powershell
-cargo run -- path\to\your\song.mp3
+cargo run --release -- "public/originals/02 Friend of the Devil.mp3"
 ```
 
-Or use the release binary:
+**What it does:**
+- Reads ID3 metadata from the file
+- Sends metadata to Ollama for AI analysis
+- Displays quality assessment, missing fields, and recommendations
+- **No files are modified**
 
-```powershell
-.\target\release\music-agent.exe path\to\your\song.mp3
+**Example Output:**
 ```
-
-#### Options
-
-```powershell
-# Use a different Ollama model
-cargo run -- --model mistral path\to\song.mp3
-
-# Connect to remote Ollama instance
-cargo run -- --ollama-url http://192.168.1.100:11434 path\to\song.mp3
-
-# Show help
-cargo run -- --help
-```
-
-## Example Output
-
-```
-🎵 Music Library Agent v0.1.0
+🎵 Music Library Agent v0.2.0
 ==============================================================
 
-📖 Reading metadata from: C:\Music\song.mp3
+📖 Reading metadata from: public/originals/02 Friend of the Devil.mp3
 🤖 Connecting to Ollama (http://localhost:11434)...
 🔍 Analyzing track with Ollama...
 
@@ -105,27 +125,215 @@ cargo run -- --help
 📊 ANALYSIS REPORT
 ==============================================================
 
-🎵 Bohemian Rhapsody
-   Artist: Queen
-   Album: A Night at the Opera
-   Year: 1975
-   Genre: Rock
+🎵 Friend of the Devil
+   Artist: Grateful Dead
+   Album: American Beauty
+   Year: Unknown
+   Genre: Unknown
 
 🤖 AI Analysis:
 --------------------------------------------------------------
-**Assessment**: The metadata is well-structured and complete.
+**Assessment**: Medium - Most metadata is complete
 
-**Issues**: None detected. All critical fields are present.
+**Issues**:
+- Year is missing (album released in 1970)
+- Genre would help with organization
 
-**Suggestions**: 
-- Consider adding album artist for compilation compatibility
-- Track number would help with playlist ordering
+**Suggestions**:
+- Add year: 1970
+- Add genre: Folk Rock
 
 **Confidence**: High
 --------------------------------------------------------------
 
-✅ Metadata appears complete
+💡 Tip: Use --suggestions flag to get structured changes
 ```
+
+**Options:**
+```powershell
+# Use a different Ollama model
+cargo run --release -- --model mistral "public/originals/song.mp3"
+
+# Connect to remote Ollama instance
+cargo run --release -- --ollama-url http://192.168.1.100:11434 "public/originals/song.mp3"
+```
+
+---
+
+### Mode 2: Suggestions Mode
+
+Generate a JSON file with structured suggestions that you can review before applying.
+
+```powershell
+cargo run --release -- --suggestions "public/originals/02 Friend of the Devil.mp3"
+```
+
+**What it does:**
+- Analyzes metadata using AI
+- Extracts structured suggestions (field-by-field)
+- Saves to `public/suggestions/02 Friend of the Devil.suggestions.json`
+- **Original file remains untouched**
+
+**Example Output:**
+```
+🎵 Music Library Agent v0.2.0
+==============================================================
+
+📖 Reading metadata from: public/originals/02 Friend of the Devil.mp3
+🤖 Connecting to Ollama (http://localhost:11434)...
+🔍 Analyzing track with Ollama...
+
+==============================================================
+💡 SUGGESTED CHANGES
+==============================================================
+
+1. YEAR (Confidence: High)
+   Current:  None
+   Suggested: 1970
+   Reason: American Beauty album was released in 1970
+
+2. GENRE (Confidence: High)
+   Current:  None
+   Suggested: Folk Rock
+   Reason: This song exemplifies the Grateful Dead's folk rock style
+
+--------------------------------------------------------------
+
+💾 Suggestions saved to: public\suggestions\02 Friend of the Devil.suggestions.json
+
+💡 To apply these changes, run:
+   cargo run --release -- --apply "public\suggestions\02 Friend of the Devil.suggestions.json"
+
+⚠️  This will create a NEW file (never overwrites original!)
+```
+
+**Suggestions File Format:**
+```json
+{
+  "file_path": "public/originals/02 Friend of the Devil.mp3",
+  "timestamp": "2026-01-08T15:37:19.517275200-05:00",
+  "current_metadata": {
+    "artist": "Grateful Dead",
+    "title": "Friend of the Devil",
+    "album": "American Beauty",
+    "year": null,
+    "genre": null,
+    "track_number": 2
+  },
+  "suggestions": [
+    {
+      "field": "year",
+      "current_value": null,
+      "suggested_value": "1970",
+      "confidence": "High",
+      "reason": "American Beauty album was released in 1970"
+    },
+    {
+      "field": "genre",
+      "current_value": null,
+      "suggested_value": "Folk Rock",
+      "confidence": "High",
+      "reason": "This song exemplifies the Grateful Dead's folk rock style"
+    }
+  ]
+}
+```
+
+---
+
+### Mode 3: Apply Mode
+
+Apply suggestions from a JSON file to create an updated MP3 with corrected metadata.
+
+```powershell
+cargo run --release -- --apply "public/suggestions/02 Friend of the Devil.suggestions.json"
+```
+
+**What it does:**
+- Reads the suggestions JSON file
+- Applies changes to create updated metadata
+- Copies original to `public/updated/02 Friend of the Devil.mp3`
+- Writes new metadata to the copy
+- **Original file in `originals/` remains completely untouched**
+
+**Example Output:**
+```
+🎵 Music Library Agent v0.2.0
+==============================================================
+
+📂 Loading suggestions from: public/suggestions/02 Friend of the Devil.suggestions.json
+
+📋 Suggestions to apply:
+  1. year → 1970
+  2. genre → Folk Rock
+
+✍️  Writing updated metadata to NEW file...
+
+✅ SUCCESS!
+   Original file: public/originals/02 Friend of the Devil.mp3 (unchanged)
+   Updated file:  public\updated\02 Friend of the Devil.mp3
+
+💡 Compare the files and keep the one you prefer!
+```
+
+**Verification:**
+
+You can verify the changes were applied by analyzing the updated file:
+
+```powershell
+cargo run --release -- "public/updated/02 Friend of the Devil.mp3"
+```
+
+---
+
+### Complete Workflow Example
+
+```powershell
+# 1. Place your MP3s in public/originals/
+Move-Item "C:\Music\*.mp3" "public\originals\"
+
+# 2. Analyze a file (read-only)
+cargo run --release -- "public/originals/song.mp3"
+
+# 3. Generate suggestions for review
+cargo run --release -- --suggestions "public/originals/song.mp3"
+
+# 4. Review the JSON file manually
+code "public\suggestions\song.suggestions.json"
+
+# 5. Apply suggestions to create updated file
+cargo run --release -- --apply "public\suggestions\song.suggestions.json"
+
+# 6. Compare original vs updated
+cargo run --release -- "public/originals/song.mp3"
+cargo run --release -- "public/updated/song.mp3"
+```
+
+---
+
+### Command Reference
+
+```powershell
+# Show all available options
+cargo run --release -- --help
+
+# Analysis mode (read-only)
+cargo run --release -- <FILE>
+
+# Suggestions mode (creates JSON)
+cargo run --release -- --suggestions <FILE>
+
+# Apply mode (creates updated MP3)
+cargo run --release -- --apply <SUGGESTIONS_FILE>
+
+# Custom model
+cargo run --release -- --model <MODEL> <FILE>
+
+# Custom Ollama server
+cargo run --release -- --ollama-url <URL> <FILE>
+```
+
+
 
 ## Project Architecture
 
@@ -163,23 +371,30 @@ pub trait LLMClient: Send + Sync {
 The `LLMClient` trait allows seamless switching between:
 - ✅ **Ollama** (local, free) - Current implementation
 - 🚧 **Claude** (Anthropic) - Planned for Phase 2
-- 🚧 **OpenAI** (GPT-4) - Planned for Phase 2
-
-**2. Agent Pattern**
-
-The agent follows a simple but extensible workflow:
+- 🚧 **OpenAI** (GPT-4) - 2.0)
 
 ```
-┌─────────────┐
-│  Observe    │  Read metadata from MP3
-└──────┬──────┘
-       │
-       ▼
-┌─────────────┐
-│   Think     │  Send to LLM for analysis
-└──────┬──────┘
-       │
-       ▼
+music-agent/
+├── src/
+│   ├── main.rs              # ✅ CLI with three modes (analyze, suggestions, apply)
+│   ├── agent.rs             # ✅ Core agent: analyze_track, analyze_with_suggestions
+│   ├── error.rs             # ✅ Custom error types with thiserror
+│   ├── suggestions.rs       # ✅ Suggestions system with JSON serialization
+│   ├── llm/
+│   │   ├── mod.rs           # ✅ LLM client trait abstraction
+│   │   └── ollama.rs        # ✅ Ollama implementation (local, free)
+│   └── metadata/
+│       ├── mod.rs           # ✅ TrackMetadata struct with validation
+│       ├── reader.rs        # ✅ ID3 tag reading with error handling
+│       └── writer.rs        # ✅ Safe metadata writing (creates new files)
+├── public/
+│   ├── originals/           # ✅ Original MP3 files (never modified)
+│   ├── suggestions/         # ✅ AI-generated suggestions (JSON)
+│   ├── updated/             # ✅ Updated MP3 files with new metadata
+│   └── README.md            # ✅ Directory structure documentation
+├── target/                  # Build artifacts
+├── Cargo.toml              # ✅ Dependencies configured
+├── README.md               # ✅ This file - comprehensive
 ┌─────────────┐
 │   Report    │  Display structured results
 └─────────────┘
@@ -233,7 +448,9 @@ Each error includes context for debugging.
 
 **Deliverables:**
 - Working agent that analyzes individual MP3 files
-- Extensible architecture ready for growth
+- Extensible architecture ready for growthand JSON files |
+| `serde_json` | 1.0 | JSON serialization for suggestions |
+| `chrono` | 0.4 | Timestamps for suggestion files 
 - Comprehensive documentation
 
 ---
@@ -256,39 +473,41 @@ trait Tool {
     async fn execute(&self, input: ToolInput) -> Result<ToolOutput>;
     fn name(&self) -> &str;
     fn description(&self) -> &str;
-}
+---
 
-struct Agent {
-    llm: Box<dyn LLMClient>,
-    tools: Vec<Box<dyn Tool>>,
-    memory: AgentMemory,
+### ✅ Phase 2: Tools & Actions (Complete - v0.2.0)
+
+**Goals Achieved:**
+- ✅ **Safe Metadata Writing** - Write corrected tags to NEW files (never overwrites)
+- ✅ **Suggestions System** - JSON-based review workflow
+- ✅ **Organized Directory Structure** - Separate folders for originals/suggestions/updated
+- ✅ **Three Operating Modes** - Analyze, Generate Suggestions, Apply Changes
+- ✅ **File Safety** - Original files protected, unique naming for duplicates
+
+**Key Implementation:**
+```rust
+// Safe writing - creates new file in updated/ directory
+pub fn write_metadata_safely(original_file: &str, metadata: &TrackMetadata) -> Result<String>
+
+// Suggestions saved to JSON for review
+pub struct SuggestionsReport {
+    pub file_path: String,
+    pub suggestions: Vec<MetadataSuggestion>,
+    pub llm_analysis: String,
 }
 ```
-
-**Timeline:** 2-3 weeks
 
 ---
 
-### 🔮 Phase 3: Scale & External Data (Planned)
+### 🚧 Phase 2.5: Enhanced UX (In Progress)
 
-**Goal:** Process entire libraries efficiently with authoritative data sources
+**Goal:** Improve usability and add graphical interface
 
-**Features:**
-- 📁 **Batch Processing** - Analyze 100+ files with parallel execution
-- 🌐 **MusicBrainz Integration** - Lookup canonical metadata
-- 🎵 **Audio Fingerprinting** - Identify tracks by audio content (AcoustID)
-- 💾 **Smart Caching** - Cache API responses to avoid re-lookups
-- 📊 **Progress Reporting** - Real-time progress bars with `indicatif`
-- 🔁 **Resume Capability** - Save state and resume interrupted jobs
-
-**New Modules:**
-```
-src/
-├── integrations/
-│   ├── musicbrainz.rs    # MusicBrainz API client
-│   ├── acoustid.rs       # Audio fingerprinting
-│   └── coverart.rs       # Album art downloads
-├── batch/
+**Planned Features:**
+- 🖥️ **GUI Interface** - User-friendly graphical interface (egui, iced, or Tauri)
+- 🤖 **Cloud LLM Support** - Add Claude and OpenAI implementations
+- 💬 **Interactive Mode** - User approval prompts in terminal
+- 🔄 **Better Parser** - Improved LLM response parsing for suggestions batch/
 │   ├── processor.rs      # Parallel file processing
 │   └── progress.rs       # Progress tracking
 └── storage/

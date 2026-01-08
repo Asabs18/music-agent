@@ -1,4 +1,5 @@
 pub mod reader;
+pub mod writer;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;

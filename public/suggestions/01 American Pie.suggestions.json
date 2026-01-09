@@ -1,0 +1,26 @@
+{
+  "file_path": "public/originals/01 American Pie.mp3",
+  "timestamp": "2026-01-09T10:32:59.718085-05:00",
+  "current_metadata": {
+    "file_path": "public/originals/01 American Pie.mp3",
+    "artist": "Don McLean",
+    "title": "American Pie",
+    "album": "American Pie",
+    "year": null,
+    "genre": null,
+    "track_number": 1,
+    "album_artist": "Don McLean",
+    "duration_seconds": null
+  },
+  "suggestions": [
+    {
+      "field": "Album Artist",
+      "current_value": "Don McLean",
+      "suggested_value": "(same as current value)",
+      "confidence": "Low",
+      "reason": "There is no need to change the existing value, as it is accurate and consistent with the \"Artist\" field."
+    }
+  ],
+  "llm_analysis": "Here are the suggestions for each field:\n\nSUGGESTION: year\nCURRENT: None\nSUGGEDED: 1971\nCONFIDENCE: High\nREASON: The song \"American Pie\" was released in 1971.\n\nSUGGESTION: genre\nCURRENT: (missing)\nSUGGESTED: Folk Rock\nCONFIDENCE: Medium\nREASON: While the song has elements of various genres, folk rock is a fitting and commonly associated genre for this type of music.\n\nSUGGESTION: Album Artist\nCURRENT: Don McLean\nSUGGESTED: (same as current value)\nCONFIDENCE: Low\nREASON: There is no need to change the existing value, as it is accurate and consistent with the \"Artist\" field.\n\nOverall Assessment:\nThe metadata for \"American Pie\" appears to be mostly complete and accurate. The missing fields can be easily deduced through external research or by using music information retrieval (MIR) tools.",
+  "should_apply": false
+}

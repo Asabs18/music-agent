@@ -25,9 +25,6 @@ pub enum AgentError {
 
     #[error("JSON error: {0}")]
     Json(#[from] serde_json::Error),
-
-    #[error("Configuration error: {0}")]
-    Config(String),
 }
 
 pub type Result<T> = std::result::Result<T, AgentError>;

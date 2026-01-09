@@ -1,0 +1,18 @@
+{
+  "file_path": "public/originals/02 Friend of the Devil.mp3",
+  "timestamp": "2026-01-08T16:35:56.649961900-05:00",
+  "current_metadata": {
+    "file_path": "public/originals/02 Friend of the Devil.mp3",
+    "artist": "Grateful Dead",
+    "title": "Friend of the Devil",
+    "album": "American Beauty",
+    "year": null,
+    "genre": null,
+    "track_number": 2,
+    "album_artist": "Grateful Dead",
+    "duration_seconds": null
+  },
+  "suggestions": [],
+  "llm_analysis": "Here are the suggested corrections for the MP3 metadata:\n\n1. SUGGESTION: album_artist\nCURRENT: Grateful Dead\nSUGGESTED: Jerry Garcia\nCONFIDENCE: Medium\nREASON: While \"Grateful Dead\" is a correct artist, it's more specific and accurate to mention Jerry Garcia as the album artist, given his significant contribution to this song.\n\n2. SUGGESTION: genre\nCURRENT: None\nSUGGESTED: Folk Rock/ Psychedelic Rock\nCONFIDENCE: High\nREASON: Based on the song's style and composition, \"Folk Rock\" and \"Psychedelic Rock\" are more accurate genres than the current \"None\".\n\n3. SUGGESTION: year\nCURRENT: None\nSUGGESTED: 1969\nCONFIDENCE: Medium\nREASON: \"American Beauty\" was released in 1969, so it's likely that this song was also released in 1969.\n\n4. SUGGESTION: duration\nCURRENT: unknown seconds\nSUGGESTED: 3:32\nCONFIDENCE: Low\nREASON: The duration of the song can be looked up online or checked on music streaming platforms, which should provide an accurate value.\n\nNO_SUGGESTIONS_NEEDED for \"title\", as it is complete and accurate (\"Friend of the Devil\").\n\nOVERALL_ASSESSMENT:\nThe metadata for this MP3 file contains some missing information, but most of the fields are already accurate. Suggesting corrections to album artist, genre, year, and duration will improve the overall completeness and accuracy of the metadata.",
+  "should_apply": false
+}
